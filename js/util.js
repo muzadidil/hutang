@@ -81,6 +81,14 @@ export function keInput(v) {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
+/** Tambah n hari ke tanggal input (yyyy-mm-dd), balikkan format yang sama. */
+export function plusHari(iso, n) {
+  const d = dariInput(iso) || new Date();
+  d.setDate(d.getDate() + n);
+  const p = x => String(x).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
 /** Tambah n bulan ke tanggal input (yyyy-mm-dd), balikkan format yang sama.
  *  31 Jan + 1 bulan jadi 28/29 Feb, bukan melompat ke Maret. */
 export function plusBulan(iso, n) {

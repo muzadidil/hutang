@@ -1,11 +1,11 @@
-import { judulAplikasi } from './config.js?v=2026-09-14-1';
+import { judulAplikasi } from './config.js?v=2026-09-14-2';
 import {
   rp, bacaAngka, tgl, tglPanjang, tempoTeks, selisihHari,
-  hariIni, dariInput, keInput, plusBulan, keDate, $, $$, aman, toast,
+  hariIni, dariInput, keInput, plusHari, keDate, $, $$, aman, toast,
   bukaSheet, tutupSheet, konfirmasi
-} from './util.js?v=2026-09-14-1';
-import * as S from './store.js?v=2026-09-14-1';
-import { barisHutang, buatPDF, pratinjauHTML, buatLaporanPDF, bagikanPDF } from './pdf.js?v=2026-09-14-1';
+} from './util.js?v=2026-09-14-2';
+import * as S from './store.js?v=2026-09-14-2';
+import { barisHutang, buatPDF, pratinjauHTML, buatLaporanPDF, bagikanPDF } from './pdf.js?v=2026-09-14-2';
 
 const VERSI = '2026-09-14 · 1';
 
@@ -241,27 +241,35 @@ async function vHutang(w, anak, cucu) {
   $$('[data-filter]').forEach(b => b.onclick = () => { filterAktif = b.dataset.filter; jalankanRute(); });
 }
 
+const TEMPO_HARI = 30;
+
 function formHutang(w, existing = null) {
   const form = {
     nama:   existing?.nama || '',
     jumlah: existing?.jumlah || 0,
     tgl:    existing ? keInput(existing.tanggal) : hariIni(),
-    tempo:  existing?.jatuh_tempo ? keInput(existing.jatuh_tempo) : plusBulan(hariIni(), 1),
-    catatan: existing?.catatan || ''
+    tempo:  existing?.jatuh_tempo ? keInput(existing.jatuh_tempo) : plusHari(hariIni(), TEMPO_HARI),
+    // Sudah ada jatuh tempo tersimpan (mode ubah) dianggap "sudah diatur manual"
+    // supaya tidak diam-diam digeser lagi saat tanggal berhutang diubah.
+    tempoDiubah: !!existing?.jatuh_tempo
   };
 
-  w.innerHTML = `
+  const gambar = () => {
+    w.innerHTML = `
     <label class="field"><span>Berhutang kepada</span>
       <input id="fNama" value="${aman(form.nama)}" placeholder="mis. Budi, Koperasi, Bank ABC"></label>
 
     <label class="field uang"><span>Jumlah hutang</span>
       <input id="fJumlah" inputmode="numeric" value="${form.jumlah ? new Intl.NumberFormat('id-ID').format(form.jumlah) : ''}" placeholder="0"></label>
 
-    <div class="duo">
-      <label class="field"><span>Tanggal berhutang</span>
-        <input type="date" id="fTgl" value="${form.tgl}"></label>
-      <label class="field"><span>Jatuh tempo</span>
-        <input type="date" id="fTempo" value="${form.tempo}"></label>
+    <label class="field"><span>Tanggal berhutang</span>
+      <input type="date" id="fTgl" value="${form.tgl}"></label>
+
+    <label class="field"><span>Jatuh tempo</span>
+      <input type="date" id="fTempo" value="${form.tempo}">
+      <span class="field-hint">Bawaan ${TEMPO_HARI} hari dari tanggal berhutang — boleh diubah bebas sesuai kesepakatan.</span></label>
+    <div class="filter-baris" style="margin:-8px 0 16px">
+      ${[7, 14, 30, 60, 90].map(n => `<button class="filter-pil ${n === TEMPO_HARI && !form.tempoDiubah ? 'aktif' : ''}" data-hari="${n}">${n} hari</button>`).join('')}
     </div>
 
     <label class="field"><span>Catatan</span>
@@ -270,14 +278,33 @@ function formHutang(w, existing = null) {
     <button class="btn btn-primary btn-block" id="fSimpan">${existing ? 'Simpan perubahan' : 'Simpan hutang'}</button>
     ${existing ? `<button class="btn btn-garis btn-block" id="fBatal" style="margin-top:12px">Batal</button>` : ''}`;
 
-  $('#fJumlah').oninput = e => {
-    const n = bacaAngka(e.target.value);
-    e.target.value = n ? new Intl.NumberFormat('id-ID').format(n) : '';
+    $('#fJumlah').oninput = e => {
+      const n = bacaAngka(e.target.value);
+      e.target.value = n ? new Intl.NumberFormat('id-ID').format(n) : '';
+    };
+
+    $('#fTgl').onchange = () => {
+      form.tgl = $('#fTgl').value;
+      // Jatuh tempo ikut geser selama belum diubah manual oleh pengguna.
+      if (!form.tempoDiubah && form.tgl) {
+        form.tempo = plusHari(form.tgl, TEMPO_HARI);
+        $('#fTempo').value = form.tempo;
+      }
+    };
+    $('#fTempo').onchange = () => { form.tempo = $('#fTempo').value; form.tempoDiubah = true; };
+
+    $$('[data-hari]').forEach(b => b.onclick = () => {
+      form.tempo = plusHari($('#fTgl').value || form.tgl, +b.dataset.hari);
+      form.tempoDiubah = true;
+      $('#fTempo').value = form.tempo;
+      $$('[data-hari]').forEach(x => x.classList.toggle('aktif', x === b));
+    });
+
+    if (existing) $('#fBatal').onclick = () => { location.hash = '#/hutang'; };
+    $('#fSimpan').onclick = simpan;
   };
 
-  if (existing) $('#fBatal').onclick = () => { location.hash = '#/hutang'; };
-
-  $('#fSimpan').onclick = async () => {
+  async function simpan() {
     const nama = $('#fNama').value.trim();
     const jumlah = bacaAngka($('#fJumlah').value);
     const tanggal = dariInput($('#fTgl').value) || new Date();
@@ -297,7 +324,9 @@ function formHutang(w, existing = null) {
       toast(e.message || 'Gagal menyimpan.', true);
       b.disabled = false; b.textContent = existing ? 'Simpan perubahan' : 'Simpan hutang';
     }
-  };
+  }
+
+  gambar();
 }
 
 /* ---------- rincian + pembayaran ---------- */

@@ -8,7 +8,7 @@ import {
   query, orderBy, runTransaction, serverTimestamp, Timestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-import { firebaseConfig } from './config.js?v=2026-09-14-1';
+import { firebaseConfig } from './config.js?v=2026-09-14-2';
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
