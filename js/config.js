@@ -4,12 +4,12 @@
 // ============================================================
 
 export const firebaseConfig = {
-  apiKey:            "ISI_DENGAN_API_KEY_ANDA",
-  authDomain:        "ISI_PROJECT_ID.firebaseapp.com",
-  projectId:         "ISI_PROJECT_ID",
-  storageBucket:     "ISI_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "ISI_SENDER_ID",
-  appId:             "ISI_APP_ID"
+  apiKey:            "AIzaSyA7xi1ZUMTCreBbS_A9fEDiC2pmic9TrJo",
+  authDomain:        "hutang-18808.firebaseapp.com",
+  projectId:         "hutang-18808",
+  storageBucket:     "hutang-18808.firebasestorage.app",
+  messagingSenderId: "826897818278",
+  appId:             "1:826897818278:web:2779ec1f345d9445d10a67"
 };
 
 // ============================================================
