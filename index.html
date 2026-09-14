@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16233A">
+<title>Buku Hutang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ============ APP ============ -->
+<div id="shell" class="shell" hidden>
+
+  <header class="topbar">
+    <div>
+      <p class="topbar-kop">Buku Hutang</p>
+      <h1 id="viewTitle" class="topbar-title">Beranda</h1>
+    </div>
+    <button id="menuBtn" class="icon-btn" aria-label="Menu lainnya">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+    </button>
+  </header>
+
+  <main id="view" class="view"></main>
+
+  <nav class="tabbar">
+    <a href="#/beranda" data-tab="beranda"><span>Beranda</span></a>
+    <a href="#/hutang"  data-tab="hutang"><span>Hutang</span></a>
+    <a href="#/laporan" data-tab="laporan"><span>Laporan</span></a>
+  </nav>
+</div>
+
+<div id="sheet" class="sheet" hidden>
+  <div class="sheet-scrim" data-close></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<div id="boot" class="boot"><span class="boot-mark"></span></div>
+
+<!-- Pengaman boot. Sengaja skrip klasik (bukan module) dan ES5 polos supaya
+     tetap jalan walau modul aplikasinya gagal dimuat sama sekali. Tanpa ini,
+     kegagalan apa pun hanya tampil sebagai spinner berputar tanpa penjelasan. -->
+<script>
+(function () {
+  var sudah = false;
+  var tampil = false;
+
+  window.bukuHutangSiap = function () { sudah = true; };
+
+  function gagal(pesan) {
+    if (sudah || tampil) return;
+    tampil = true;
+    var boot = document.getElementById('boot');
+    if (!boot) return;
+    boot.innerHTML =
+      '<div style="max-width:340px;padding:24px;text-align:center">' +
+      '<p style="font-weight:800;font-size:1.05rem;margin:0 0 8px">Aplikasi gagal dimuat</p>' +
+      '<p style="color:#5A6880;font-size:.9rem;margin:0 0 20px">' + pesan + '</p>' +
+      '<button id="bootSegar" style="width:100%;min-height:48px;border:0;border-radius:10px;' +
+      'background:#2C3FA8;color:#fff;font-weight:700;font-size:1rem;cursor:pointer">' +
+      'Ambil ulang versi terbaru</button>' +
+      '<p style="color:#8C97A8;font-size:.78rem;margin:16px 0 0">Kalau masih gagal, tekan Ctrl+Shift+R.</p>' +
+      '</div>';
+    document.getElementById('bootSegar').onclick = function () {
+      var berkas = ['index.html', 'assets/style.css', 'js/app.js', 'js/store.js',
+                    'js/util.js', 'js/pdf.js', 'js/config.js'];
+      var sisa = berkas.length;
+      var selesai = function () { if (--sisa <= 0) location.reload(); };
+      for (var i = 0; i < berkas.length; i++) {
+        fetch(berkas[i], { cache: 'reload' }).then(selesai, selesai);
+      }
+    };
+  }
+
+  window.addEventListener('error', function (e) {
+    gagal(e && e.message ? String(e.message) : 'Ada berkas yang gagal dijalankan.');
+  });
+  window.addEventListener('unhandledrejection', function () {
+    gagal('Sambungan ke server data gagal.');
+  });
+
+  // Jaring terakhir: modul yang gagal di-link kadang tidak memicu event apa pun.
+  setTimeout(function () {
+    gagal('Sebagian berkas mungkin masih versi lama yang tersimpan di browser.');
+  }, 10000);
+})();
+</script>
+<script type="module" src="js/app.js?v=2026-09-14-1"></script>
+</body>
+</html>
