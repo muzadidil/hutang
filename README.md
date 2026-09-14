@@ -12,7 +12,8 @@ GitHub Pages.
 - Beranda menampilkan total sisa hutang dan hutang yang mendekati/lewat jatuh tempo.
 - Laporan lengkap semua hutang, bisa dicetak/diunduh sebagai PDF.
 - Cetak PDF rincian per hutang (mirip nota) berisi riwayat pembayaran.
-- Login otomatis (anonim) ke Firebase — tidak perlu isi kata sandi apa pun.
+- Layar masuk berkata sandi (bawaan: `zasha`, diatur di `js/config.js`) — sekadar penghalang tampilan, bukan keamanan data sesungguhnya.
+- Login otomatis (anonim) ke Firebase di belakang layar — pengguna tidak perlu tahu soal ini.
 
 ## 1. Siapkan project Firebase
 

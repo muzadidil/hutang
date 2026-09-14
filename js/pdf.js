@@ -1,5 +1,5 @@
-import { judulAplikasi } from './config.js?v=2026-09-14-2';
-import { rp, tgl, tglPanjang, tempoTeks } from './util.js?v=2026-09-14-2';
+import { judulAplikasi } from './config.js?v=2026-09-14-3';
+import { rp, tgl, tglPanjang, tempoTeks } from './util.js?v=2026-09-14-3';
 
 /* ============================================================
    PDF RINCIAN SATU HUTANG — bentuk nota/slip, dibuat ULANG dari

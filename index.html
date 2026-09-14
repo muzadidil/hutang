@@ -13,6 +13,21 @@
 </head>
 <body>
 
+<!-- ============ LOGIN ============ -->
+<section id="gate" class="gate" hidden>
+  <div class="gate-slip">
+    <p class="gate-kop">Buku Hutang</p>
+    <h1 class="gate-title">Catatan hutang &amp; pembayaran</h1>
+    <p class="gate-sub">Masukkan kata sandi untuk membuka catatan.</p>
+    <label class="field">
+      <span>Kata sandi</span>
+      <input id="gPass" type="password" autocomplete="current-password">
+    </label>
+    <p id="gErr" class="gate-err" hidden></p>
+    <button id="gBtn" class="btn btn-primary btn-block">Masuk</button>
+  </div>
+</section>
+
 <!-- ============ APP ============ -->
 <div id="shell" class="shell" hidden>
 
@@ -92,6 +107,6 @@
   }, 10000);
 })();
 </script>
-<script type="module" src="js/app.js?v=2026-09-14-2"></script>
+<script type="module" src="js/app.js?v=2026-09-14-3"></script>
 </body>
 </html>

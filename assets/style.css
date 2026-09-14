@@ -70,6 +70,32 @@ a{ color:inherit; text-decoration:none; }
 }
 @keyframes spin{ to{ transform:rotate(360deg); } }
 
+/* ---------- login ---------- */
+.gate{
+  min-height:100dvh; display:grid; place-items:center;
+  padding:var(--sp5) var(--sp4);
+}
+.gate-slip{
+  width:100%; max-width:380px;
+  background:var(--kertas-atas);
+  border:1px solid var(--garis);
+  border-top:4px solid var(--cap);
+  border-radius:2px;
+  padding:var(--sp5) var(--sp5) var(--sp6);
+  box-shadow:0 1px 0 var(--garis), 0 14px 34px -22px rgba(22,35,58,.5);
+}
+.gate-kop{
+  font-size:.72rem; font-weight:700; letter-spacing:.1em;
+  color:var(--cap); margin-bottom:var(--sp5);
+}
+.gate-title{ font-size:1.45rem; font-weight:800; letter-spacing:-.02em; line-height:1.2; }
+.gate-sub{ color:var(--tinta-lembut); font-size:.9rem; margin:var(--sp2) 0 var(--sp5); }
+.gate-err{
+  background:var(--merah-lembut); color:var(--merah);
+  border-left:3px solid var(--merah);
+  padding:var(--sp3); font-size:.88rem; margin-bottom:var(--sp3);
+}
+
 /* ---------- shell ---------- */
 .shell{ min-height:100dvh; padding-bottom:calc(70px + env(safe-area-inset-bottom)); }
 

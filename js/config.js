@@ -17,3 +17,12 @@ export const firebaseConfig = {
 // ============================================================
 
 export const judulAplikasi = "Buku Hutang";
+
+// ============================================================
+//  Kata sandi masuk ke aplikasi.
+//  PERINGATAN: ini hanya penghalang tampilan, bukan keamanan data.
+//  Kode ini publik — siapa pun bisa membaca kata sandi ini lewat
+//  developer console. Data Firestore aman/tidaknya bergantung
+//  sepenuhnya pada firestore.rules, bukan pada kata sandi ini.
+// ============================================================
+export const APP_PASSWORD = "zasha";

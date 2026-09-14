@@ -1,20 +1,29 @@
-import { judulAplikasi } from './config.js?v=2026-09-14-2';
+import { judulAplikasi, APP_PASSWORD } from './config.js?v=2026-09-14-3';
 import {
   rp, bacaAngka, tgl, tglPanjang, tempoTeks, selisihHari,
   hariIni, dariInput, keInput, plusHari, keDate, $, $$, aman, toast,
   bukaSheet, tutupSheet, konfirmasi
-} from './util.js?v=2026-09-14-2';
-import * as S from './store.js?v=2026-09-14-2';
-import { barisHutang, buatPDF, pratinjauHTML, buatLaporanPDF, bagikanPDF } from './pdf.js?v=2026-09-14-2';
+} from './util.js?v=2026-09-14-3';
+import * as S from './store.js?v=2026-09-14-3';
+import { barisHutang, buatPDF, pratinjauHTML, buatLaporanPDF, bagikanPDF } from './pdf.js?v=2026-09-14-3';
 
-const VERSI = '2026-09-14 · 1';
+const VERSI = '2026-09-14 · 2';
 
 // Beri tahu pengaman di index.html bahwa modul berhasil jalan.
 window.bukuHutangSiap?.();
 
 /* ============================================================
-   BOOT — tunggu login anonim sebelum tampil.
+   BOOT — tunggu login anonim ke Firebase, lalu tampilkan
+   gerbang kata sandi (atau langsung masuk kalau sesi sudah ada).
    ============================================================ */
+
+const KUNCI_SESI = 'hutang_masuk';
+
+function bukaGerbang() {
+  $('#gate').hidden  = true;
+  $('#shell').hidden = false;
+  jalankanRute();
+}
 
 (async () => {
   try {
@@ -32,10 +41,28 @@ window.bukuHutangSiap?.();
       </div>`;
     return;
   }
-  $('#boot').hidden  = true;
-  $('#shell').hidden = false;
-  jalankanRute();
+  $('#boot').hidden = true;
+  if (localStorage.getItem(KUNCI_SESI) === '1') {
+    bukaGerbang();
+  } else {
+    $('#gate').hidden = false;
+    $('#gPass').focus();
+  }
 })();
+
+$('#gBtn').onclick = () => {
+  const salah = $('#gErr');
+  if ($('#gPass').value === APP_PASSWORD) {
+    localStorage.setItem(KUNCI_SESI, '1');
+    salah.hidden = true;
+    bukaGerbang();
+  } else {
+    salah.textContent = 'Kata sandi salah.';
+    salah.hidden = false;
+  }
+};
+
+$('#gPass').addEventListener('keydown', e => { if (e.key === 'Enter') $('#gBtn').click(); });
 
 /* ============================================================
    MENU LAINNYA
@@ -46,7 +73,8 @@ $('#menuBtn').onclick = () => {
     <h2 class="sheet-judul">Lainnya</h2>
     <button class="sheet-menu" data-go="#/laporan">Laporan &amp; cetak PDF<small>Rekap semua hutang</small></button>
     <button class="sheet-menu" id="mSegar">Muat ulang versi terbaru<small>Pakai kalau ada yang aneh setelah aplikasi diperbarui</small></button>
-    <button class="sheet-menu" id="mTentang">Tentang aplikasi ini<small>Cara kerja login anonim</small></button>
+    <button class="sheet-menu" id="mTentang">Tentang aplikasi ini<small>Cara kerja kata sandi &amp; login anonim</small></button>
+    <button class="sheet-menu" id="mKeluar" style="color:var(--merah)">Keluar</button>
     <p class="field-hint" style="text-align:center;margin-top:16px">Versi ${aman(VERSI)}</p>`);
 
   $$('[data-go]').forEach(b => b.onclick = () => { tutupSheet(); location.hash = b.dataset.go; });
@@ -63,18 +91,31 @@ $('#menuBtn').onclick = () => {
     bukaSheet(`
       <h2 class="sheet-judul">Tentang aplikasi ini</h2>
       <p style="color:var(--tinta-lembut);font-size:.9rem;margin-bottom:12px">
-        Aplikasi ini masuk ke Firebase secara anonim dan otomatis, tanpa perlu
-        kata sandi. Ini menutup akses langsung ke database dari luar aplikasi,
-        tapi <strong>bukan</strong> mengunci data khusus untuk satu orang —
-        siapa pun yang membuka tautan ini akan membaca dan menulis catatan
+        Kata sandi di layar masuk hanya penghalang tampilan di sisi browser —
+        siapa pun yang membaca kode sumbernya bisa melihat kata sandi itu.
+        Keamanan data sesungguhnya ada pada aturan Firestore, bukan kata sandi.
+      </p>
+      <p style="color:var(--tinta-lembut);font-size:.9rem;margin-bottom:12px">
+        Setelah lolos kata sandi, aplikasi juga masuk ke Firebase secara
+        anonim dan otomatis. Ini menutup akses langsung ke database dari luar
+        aplikasi, tapi <strong>bukan</strong> mengunci data khusus untuk satu
+        orang — siapa pun yang tahu kata sandinya membaca dan menulis catatan
         yang sama.
       </p>
       <p style="color:var(--tinta-lembut);font-size:.9rem">
         Cocok untuk catatan pribadi yang kamu buka sendiri dari beberapa HP
-        atau komputer. Jangan sebarkan tautannya kalau tidak mau orang lain
-        ikut bisa mengubah atau menghapus catatan.
+        atau komputer. Jangan sebarkan kata sandi atau tautannya kalau tidak
+        mau orang lain ikut bisa mengubah atau menghapus catatan.
       </p>
       <button class="btn btn-garis btn-block" data-close style="margin-top:20px">Tutup</button>`);
+  };
+
+  $('#mKeluar').onclick = async () => {
+    tutupSheet();
+    if (await konfirmasi({ judul: 'Keluar?', pesan: 'Kamu perlu masukkan kata sandi lagi nanti.', aksi: 'Keluar', bahaya: true })) {
+      localStorage.removeItem(KUNCI_SESI);
+      location.reload();
+    }
   };
 };
 
